@@ -1,0 +1,80 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+
+  body {
+    background-color: #1a1412;
+    color: #f5f0eb;
+    background-image: radial-gradient(circle at 50% 20%, #2a1f1b 0%, #1a1412 80%);
+    min-height: 100vh;
+  }
+}
+
+.font-serif {
+  font-family: 'Newsreader', Georgia, Cambria, "Times New Roman", Times, serif;
+}
+
+.font-sans {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+/* Wood Shelf Styles */
+.shelf-wood {
+  background: linear-gradient(180deg, #3a281e 0%, #281a13 60%, #1b110b 100%);
+  border-top: 3px solid #5a4030;
+  border-bottom: 4px solid #120b07;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.7), inset 0 2px 4px rgba(255, 255, 255, 0.1);
+}
+
+.shelf-plank {
+  background: linear-gradient(90deg, #241710 0%, #362319 25%, #2a1b13 50%, #3a261c 75%, #22150e 100%);
+}
+
+.shelf-shadow {
+  box-shadow: inset 0 12px 16px -8px rgba(0, 0, 0, 0.8);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.98); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-slideUp {
+  animation: slideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Ribbon Clip Path */
+.clip-ribbon {
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 80%, 0 100%);
+}
+
+/* Custom scrollbar for library feel */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #1a1412;
+}
+::-webkit-scrollbar-thumb {
+  background: #3a281e;
+  border-radius: 4px;
+  border: 1px solid #5a4030;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #5a4030;
+}
+
+

@@ -1,0 +1,6 @@
+{
+  "name": "Libreria PDF",
+  "description": "Libreria e lettore PDF locale con segnalibri, temi di lettura, zoom e interfaccia responsive per mobile e desktop",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

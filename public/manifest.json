@@ -1,0 +1,18 @@
+{
+  "short_name": "Libreria PDF",
+  "name": "Archivio PDF • Lettore & Libreria",
+  "icons": [
+    {
+      "src": "/pwa-icon.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#0f172a",
+  "theme_color": "#0f172a",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "description": "Libreria e Lettore PDF installabile offline"
+}
