@@ -1,20 +1,38 @@
 [
   {
-    "id": "Corsa_verso_linferno.pdf",
-    "filename": "Corsa_verso_linferno.pdf",
+    "id": "Corsa_verso_linferno__James___z-library.sk__1lib.sk__z-lib.sk_.pdf",
+    "filename": "Corsa_verso_linferno__James___z-library.sk__1lib.sk__z-lib.sk_.pdf",
     "title": "Corsa verso linferno James",
     "size": 1520000,
     "addedAt": "2026-08-07T12:00:00.000Z",
-    "url": "pdf/Corsa_verso_linferno.pdf",
+    "url": "/pdf/Corsa_verso_linferno__James___z-library.sk__1lib.sk__z-lib.sk_.pdf",
     "isSample": false
   },
   {
-    "id": "Operazione_vulcano.pdf",
-    "filename": "Operazione_vulcano.pdf",
-    "title": "Operazione Vulcano",
-    "size": 3340000,
+    "id": "Guida_alla_Lettura_Digitale.pdf",
+    "filename": "Guida_alla_Lettura_Digitale.pdf",
+    "title": "Guida alla Lettura Digitale",
+    "size": 14000,
     "addedAt": "2026-08-07T12:00:00.000Z",
-    "url": "pdf/Operazione_vulcano.pdf",
+    "url": "/pdf/Guida_alla_Lettura_Digitale.pdf",
     "isSample": true
-   }
+  },
+  {
+    "id": "Il_Piccolo_Principe_Estratto.pdf",
+    "filename": "Il_Piccolo_Principe_Estratto.pdf",
+    "title": "Il Piccolo Principe Estratto",
+    "size": 12000,
+    "addedAt": "2026-08-07T12:00:00.000Z",
+    "url": "/pdf/Il_Piccolo_Principe_Estratto.pdf",
+    "isSample": true
+  },
+  {
+    "id": "Manuale_Note_Esempio.pdf",
+    "filename": "Manuale_Note_Esempio.pdf",
+    "title": "Manuale Note Esempio",
+    "size": 11000,
+    "addedAt": "2026-08-07T12:00:00.000Z",
+    "url": "/pdf/Manuale_Note_Esempio.pdf",
+    "isSample": true
+  }
 ]

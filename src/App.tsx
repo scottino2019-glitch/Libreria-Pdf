@@ -32,43 +32,56 @@ export default function App() {
   const [showBookmarksModal, setShowBookmarksModal] = useState<boolean>(false);
   const [activeTab, setActiveTab] = useState<'library' | 'bookmarks' | 'settings'>('library');
 
-  // Load state from static /pdf folder + IndexedDB user uploads
+  // Load state from static /pdf folder + samples + IndexedDB user uploads
   const loadLibraryData = useCallback(async () => {
     setIsLoadingPdfs(true);
-    let defaultFolderPdfs: PdfItem[] = [];
+    let serverFolderPdfs: PdfItem[] = [];
 
+    // 1. Fetch PDFs from server /pdf directory
     try {
-      const res = await fetch('/pdf/index.json');
+      const res = await fetch(`/pdf/index.json?t=${Date.now()}`);
       if (res.ok) {
         const folderPdfs: PdfItem[] = await res.json();
         if (Array.isArray(folderPdfs) && folderPdfs.length > 0) {
-          defaultFolderPdfs = folderPdfs;
-          setPdfDir('/pdf');
+          serverFolderPdfs = folderPdfs;
         }
       }
     } catch (err) {
-      console.log('Nessun file statico /pdf/index.json caricato, utilizzo file di esempio:', err);
+      console.log('Nessun file statico /pdf/index.json disponibile:', err);
     }
 
-    if (defaultFolderPdfs.length === 0) {
-      try {
-        defaultFolderPdfs = await generateSamplePdfsClient();
-        setPdfDir('/pdf');
-      } catch (err) {
-        console.error('Errore durante il caricamento dei campioni:', err);
+    // 2. Load Client Sample PDFs
+    let samplePdfs: PdfItem[] = [];
+    try {
+      samplePdfs = await generateSamplePdfsClient();
+    } catch (err) {
+      console.error('Errore durante il caricamento dei campioni:', err);
+    }
+
+    // 3. Load Stored PDFs from IndexedDB (User Uploads)
+    let storedPdfs: PdfItem[] = [];
+    try {
+      storedPdfs = await loadStoredPdfs();
+    } catch (err) {
+      console.error('Errore durante il caricamento dei PDF memorizzati:', err);
+    }
+
+    // Combine all sources and deduplicate by filename / id
+    const combined = [...storedPdfs, ...serverFolderPdfs, ...samplePdfs];
+    const uniquePdfs: PdfItem[] = [];
+    const seen = new Set<string>();
+
+    for (const item of combined) {
+      const key = (item.id || item.filename).toLowerCase();
+      if (!seen.has(key)) {
+        seen.add(key);
+        uniquePdfs.push(item);
       }
     }
 
-    // Load stored PDFs imported from device / cell
-    try {
-      const storedPdfs = await loadStoredPdfs();
-      setPdfs([...storedPdfs, ...defaultFolderPdfs]);
-    } catch (err) {
-      console.error('Errore durante il caricamento dei PDF memorizzati:', err);
-      setPdfs(defaultFolderPdfs);
-    } finally {
-      setIsLoadingPdfs(false);
-    }
+    setPdfs(uniquePdfs);
+    setPdfDir('/pdf');
+    setIsLoadingPdfs(false);
   }, []);
 
   useEffect(() => {

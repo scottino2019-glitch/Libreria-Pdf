@@ -97,19 +97,39 @@ export const LibraryView: React.FC<Props> = ({
     }
   };
 
-  // Helper to check if file is PDF (handles mobile browser pickers, content URIs, and generic octet-streams)
-  const isPdfFile = (file: File) => {
+  // Helper to check if file is PDF (handles mobile browser pickers, content URIs, generic octet-streams & magic bytes)
+  const isPdfFileAsync = async (file: File): Promise<boolean> => {
     if (!file) return false;
     const name = (file.name || '').toLowerCase();
     const type = (file.type || '').toLowerCase();
 
+    // 1. Direct extension or explicit MIME match
     if (name.endsWith('.pdf') || type.includes('pdf')) {
       return true;
     }
-    // Mobile file pickers on iOS/Android sometimes pass empty type or octet-stream for selected documents
+
+    // 2. Ignore obvious system / non-PDF files
+    if (name.startsWith('.') || name.endsWith('.txt') || name.endsWith('.jpg') || name.endsWith('.png') || name.endsWith('.zip')) {
+      return false;
+    }
+
+    // 3. For ambiguous files (empty type or octet-stream), inspect magic bytes (%PDF = 0x25, 0x50, 0x44, 0x46)
+    try {
+      const slice = file.slice(0, 4);
+      const buffer = await slice.arrayBuffer();
+      const arr = new Uint8Array(buffer);
+      if (arr.length >= 4 && arr[0] === 0x25 && arr[1] === 0x50 && arr[2] === 0x44 && arr[3] === 0x46) {
+        return true;
+      }
+    } catch (e) {
+      // Fallback if slice fails
+    }
+
+    // 4. Default fallback for empty type or application/octet-stream if not explicitly non-pdf
     if (type === '' || type === 'application/octet-stream' || type === 'binary/octet-stream') {
       return true;
     }
+
     return false;
   };
 
@@ -124,7 +144,7 @@ export const LibraryView: React.FC<Props> = ({
     return file;
   };
 
-  // Upload handler
+  // Upload handler for single / multiple files
   const handleFileSelect = async (files: FileList | null) => {
     if (!files || files.length === 0) return;
 
@@ -135,12 +155,15 @@ export const LibraryView: React.FC<Props> = ({
     try {
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
-        if (isPdfFile(file)) {
+        const isPdf = await isPdfFileAsync(file);
+        if (isPdf) {
           const normalizedFile = normalizePdfFile(file);
           await onUploadPdf(normalizedFile);
           uploadedCount++;
         } else {
-          failedNames.push(file.name || 'File sconosciuto');
+          if (!file.name.startsWith('.')) {
+            failedNames.push(file.name || 'File sconosciuto');
+          }
         }
       }
 
@@ -156,16 +179,27 @@ export const LibraryView: React.FC<Props> = ({
     }
   };
 
+  // Upload handler for entire folder selection
   const handleFolderSelect = async (files: FileList | null) => {
     if (!files || files.length === 0) return;
     setIsUploading(true);
+    let uploadedCount = 0;
+
     try {
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
-        if (isPdfFile(file)) {
+        const isPdf = await isPdfFileAsync(file);
+        if (isPdf) {
           const normalizedFile = normalizePdfFile(file);
           await onUploadPdf(normalizedFile);
+          uploadedCount++;
         }
+      }
+
+      if (uploadedCount > 0) {
+        alert(`Riconosciuti e caricati con successo ${uploadedCount} documenti PDF dalla cartella!`);
+      } else {
+        alert('Nessun documento PDF valido trovato nella cartella selezionata.');
       }
     } catch (err: any) {
       alert('Errore durante la lettura della cartella: ' + (err.message || 'Errore sconosciuto'));
