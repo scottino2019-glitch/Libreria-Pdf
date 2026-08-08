@@ -97,22 +97,62 @@ export const LibraryView: React.FC<Props> = ({
     }
   };
 
+  // Helper to check if file is PDF (handles mobile browser pickers, content URIs, and generic octet-streams)
+  const isPdfFile = (file: File) => {
+    if (!file) return false;
+    const name = (file.name || '').toLowerCase();
+    const type = (file.type || '').toLowerCase();
+
+    if (name.endsWith('.pdf') || type.includes('pdf')) {
+      return true;
+    }
+    // Mobile file pickers on iOS/Android sometimes pass empty type or octet-stream for selected documents
+    if (type === '' || type === 'application/octet-stream' || type === 'binary/octet-stream') {
+      return true;
+    }
+    return false;
+  };
+
+  const normalizePdfFile = (file: File): File => {
+    const origName = file.name || `documento_${Date.now()}.pdf`;
+    if (!origName.toLowerCase().endsWith('.pdf')) {
+      return new File([file], `${origName}.pdf`, {
+        type: 'application/pdf',
+        lastModified: file.lastModified || Date.now(),
+      });
+    }
+    return file;
+  };
+
   // Upload handler
   const handleFileSelect = async (files: FileList | null) => {
     if (!files || files.length === 0) return;
-    const file = files[0];
-    if (!file.name.toLowerCase().endsWith('.pdf')) {
-      alert('Seleziona un file con estensione .pdf');
-      return;
-    }
 
     setIsUploading(true);
+    let uploadedCount = 0;
+    let failedNames: string[] = [];
+
     try {
-      await onUploadPdf(file);
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        if (isPdfFile(file)) {
+          const normalizedFile = normalizePdfFile(file);
+          await onUploadPdf(normalizedFile);
+          uploadedCount++;
+        } else {
+          failedNames.push(file.name || 'File sconosciuto');
+        }
+      }
+
+      if (uploadedCount === 0 && failedNames.length > 0) {
+        alert('I file selezionati non sembrano essere documenti PDF validi.');
+      }
     } catch (err: any) {
-      alert('Errore durante il caricamento del PDF: ' + err.message);
+      alert('Errore durante il caricamento del PDF: ' + (err.message || 'Errore sconosciuto'));
     } finally {
       setIsUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+      if (folderInputRef.current) folderInputRef.current.value = '';
     }
   };
 
@@ -122,14 +162,17 @@ export const LibraryView: React.FC<Props> = ({
     try {
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
-        if (file.name.toLowerCase().endsWith('.pdf')) {
-          await onUploadPdf(file);
+        if (isPdfFile(file)) {
+          const normalizedFile = normalizePdfFile(file);
+          await onUploadPdf(normalizedFile);
         }
       }
     } catch (err: any) {
-      alert('Errore durante la lettura della cartella: ' + err.message);
+      alert('Errore durante la lettura della cartella: ' + (err.message || 'Errore sconosciuto'));
     } finally {
       setIsUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+      if (folderInputRef.current) folderInputRef.current.value = '';
     }
   };
 
@@ -225,7 +268,8 @@ export const LibraryView: React.FC<Props> = ({
             <input
               type="file"
               ref={fileInputRef}
-              accept=".pdf,application/pdf"
+              accept=".pdf,application/pdf,application/x-pdf,application/acrobat,applications/vnd.pdf,text/pdf,application/octet-stream"
+              multiple
               onChange={e => handleFileSelect(e.target.files)}
               className="hidden"
             />
